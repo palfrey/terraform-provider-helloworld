@@ -1,0 +1,3 @@
+[submodule "external/terraform"]
+	path = external/terraform
+	url = https://github.com/hashicorp/terraform
