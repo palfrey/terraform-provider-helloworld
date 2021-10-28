@@ -1,0 +1,14 @@
+#!/bin/bash
+set -eu -o pipefail
+
+TF_ROOT=$(dirname $(realpath $0))
+ROOT=$(dirname ${TF_ROOT})
+TF_FOLDER=${TF_ROOT}/.terraform
+
+if [ ! -f ${TF_FOLDER}/terraform ]; then
+    mkdir -p ${TF_FOLDER}
+    (cd ${TF_FOLDER} && wget https://releases.hashicorp.com/terraform/0.14.7/terraform_0.14.7_linux_amd64.zip)
+    unzip -d ${TF_FOLDER} ${TF_FOLDER}/terraform_0.14.7_linux_amd64.zip
+fi
+
+${TF_FOLDER}/terraform $*
