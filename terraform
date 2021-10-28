@@ -11,4 +11,6 @@ if [ ! -f ${TF_FOLDER}/terraform ]; then
     unzip -d ${TF_FOLDER} ${TF_FOLDER}/terraform_0.14.7_linux_amd64.zip
 fi
 
+export TF_CLI_CONFIG_FILE=.terraformrc
+
 ${TF_FOLDER}/terraform $*

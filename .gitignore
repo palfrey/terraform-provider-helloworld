@@ -1,2 +1,4 @@
 .terraform
 /target
+.terraform.tfstate.lock.info
+terraform.tfstate
