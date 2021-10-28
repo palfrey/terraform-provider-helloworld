@@ -1,5 +1,5 @@
 mod server;
-use tonic::{transport::Server};
+use tonic::{transport::{Server, ServerTlsConfig}};
 use server::tf::provider_server::ProviderServer;
 use futures::{TryFutureExt, try_join};
 use anyhow::{anyhow,Result};
@@ -11,7 +11,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "0.0.0.0:10000".parse()?;
     let hello_world = server::HelloWorldProvider::default();
 
+    let tls_config = ServerTlsConfig::new();
+
     let serve = Server::builder()
+        .tls_config(tls_config).unwrap()
         .add_service(ProviderServer::new(hello_world))
         .serve(addr);
 
