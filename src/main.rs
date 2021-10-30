@@ -6,13 +6,23 @@ use futures::{try_join, TryFutureExt};
 use rcgen::{BasicConstraints, IsCa};
 use server::tf::provider_server::ProviderServer;
 use tonic::transport::{Certificate, Identity, Server, ServerTlsConfig};
+use tracing_subscriber::fmt::format;
+
+use server::stdio::grpc_stdio_server::GrpcStdioServer;
+
 
 const CORE_PROTOCOL_VERSION: u8 = 1;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let collector = tracing_subscriber::fmt()
+        .event_format(format().json())
+        .finish();
+    tracing::subscriber::set_global_default(collector).unwrap();
+
     let addr = "0.0.0.0:10000".parse()?;
     let hello_world = server::HelloWorldProvider::default();
+    let stdio = server::StdioProvider::default();
 
     let client_cert = Certificate::from_pem(
         env::var("PLUGIN_CLIENT_CERT").expect("Expected to find cert in PLUGIN_CLIENT_CERT"),
@@ -32,6 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .tls_config(tls_config)
         .unwrap()
         .add_service(ProviderServer::new(hello_world))
+        .add_service(GrpcStdioServer::new(stdio))
         .serve(addr);
 
     async fn info(server_cert: rcgen::Certificate) -> Result<()> {

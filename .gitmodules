@@ -1,3 +1,6 @@
 [submodule "external/terraform"]
 	path = external/terraform
 	url = https://github.com/hashicorp/terraform
+[submodule "external/go-plugin"]
+	path = external/go-plugin
+	url = git@github.com:hashicorp/go-plugin.git
