@@ -1,5 +1,5 @@
 mod server;
-use std::{env, fs::File, io::SeekFrom, sync::Mutex, time::Duration};
+use std::{env, fs::File, io::SeekFrom, sync::Mutex};
 
 use anyhow::{anyhow, Result};
 use futures::{try_join, TryFutureExt};
@@ -8,7 +8,7 @@ use rustls::{
     internal::pemfile, ClientCertVerified, HandshakeSignatureValid, ProtocolVersion, TLSError,
 };
 use server::tf::provider_server::ProviderServer;
-use tokio::{io::AsyncSeekExt, time::sleep};
+use tokio::io::AsyncSeekExt;
 use tonic::transport::{Server, ServerTlsConfig};
 use tower_http::trace::TraceLayer;
 
@@ -125,7 +125,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(addr);
 
     async fn info(server_cert: rcgen::Certificate) -> Result<()> {
-        sleep(Duration::from_secs(2)).await;
         println!(
             "{}|{}|{}|{}|{}|{}",
             CORE_PROTOCOL_VERSION,
