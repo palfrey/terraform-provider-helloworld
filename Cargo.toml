@@ -19,6 +19,7 @@ tower-http = {version = "0.1", features=["trace"] }
 rustls = {version = "0.19", features=["dangerous_configuration"]}
 webpki = "0.21"
 x509-parser = "0.12"
+async-stream = "0.3"
 
 [build-dependencies]
 tonic-build = "0.6"

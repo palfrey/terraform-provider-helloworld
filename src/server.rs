@@ -1,10 +1,12 @@
 #![allow(unused_variables)]
 use std::collections::HashMap;
 
+use async_stream::try_stream;
 use async_trait::async_trait;
 use futures_core::stream::BoxStream;
 use stdio::StdioData;
 use tf::provider_server::Provider;
+use tokio::time::{sleep, Duration};
 
 pub mod tf {
     use tonic::include_proto;
@@ -119,6 +121,11 @@ impl stdio::grpc_stdio_server::GrpcStdio for StdioProvider {
         &self,
         request: tonic::Request<()>,
     ) -> Result<tonic::Response<Self::StreamStdioStream>, tonic::Status> {
-        unimplemented!();
+        return Ok(tonic::Response::new(Box::pin(try_stream! {
+            loop {
+                sleep(Duration::from_secs(30)).await;
+                yield StdioData{channel: 1, data: vec![]};
+            }
+        })));
     }
 }
