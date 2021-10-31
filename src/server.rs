@@ -1,8 +1,8 @@
 #![allow(unused_variables)]
 use async_trait::async_trait;
-use tf::provider_server::Provider;
-use stdio::StdioData;
 use futures_core::stream::BoxStream;
+use stdio::StdioData;
+use tf::provider_server::Provider;
 
 pub mod tf {
     use tonic::include_proto;
