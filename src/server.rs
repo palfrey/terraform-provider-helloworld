@@ -1,4 +1,6 @@
 #![allow(unused_variables)]
+use std::collections::HashMap;
+
 use async_trait::async_trait;
 use futures_core::stream::BoxStream;
 use stdio::StdioData;
@@ -6,7 +8,7 @@ use tf::provider_server::Provider;
 
 pub mod tf {
     use tonic::include_proto;
-    include_proto!("tfplugin6");
+    include_proto!("tfplugin5");
 }
 
 #[derive(Debug, Default)]
@@ -14,30 +16,6 @@ pub struct HelloWorldProvider {}
 
 #[async_trait]
 impl Provider for HelloWorldProvider {
-    async fn get_provider_schema(
-        &self,
-        request: tonic::Request<tf::get_provider_schema::Request>,
-    ) -> Result<tonic::Response<tf::get_provider_schema::Response>, tonic::Status> {
-        unimplemented!();
-    }
-    async fn validate_provider_config(
-        &self,
-        request: tonic::Request<tf::validate_provider_config::Request>,
-    ) -> Result<tonic::Response<tf::validate_provider_config::Response>, tonic::Status> {
-        unimplemented!();
-    }
-    async fn validate_resource_config(
-        &self,
-        request: tonic::Request<tf::validate_resource_config::Request>,
-    ) -> Result<tonic::Response<tf::validate_resource_config::Response>, tonic::Status> {
-        unimplemented!();
-    }
-    async fn validate_data_resource_config(
-        &self,
-        request: tonic::Request<tf::validate_data_resource_config::Request>,
-    ) -> Result<tonic::Response<tf::validate_data_resource_config::Response>, tonic::Status> {
-        unimplemented!();
-    }
     async fn upgrade_resource_state(
         &self,
         request: tonic::Request<tf::upgrade_resource_state::Request>,
@@ -45,12 +23,6 @@ impl Provider for HelloWorldProvider {
         unimplemented!();
     }
 
-    async fn configure_provider(
-        &self,
-        request: tonic::Request<tf::configure_provider::Request>,
-    ) -> Result<tonic::Response<tf::configure_provider::Response>, tonic::Status> {
-        unimplemented!();
-    }
     async fn read_resource(
         &self,
         request: tonic::Request<tf::read_resource::Request>,
@@ -81,10 +53,52 @@ impl Provider for HelloWorldProvider {
     ) -> Result<tonic::Response<tf::read_data_source::Response>, tonic::Status> {
         unimplemented!();
     }
-    async fn stop_provider(
+    async fn get_schema(
         &self,
-        request: tonic::Request<tf::stop_provider::Request>,
-    ) -> Result<tonic::Response<tf::stop_provider::Response>, tonic::Status> {
+        request: tonic::Request<tf::get_provider_schema::Request>,
+    ) -> Result<tonic::Response<tf::get_provider_schema::Response>, tonic::Status> {
+        Ok(tonic::Response::new(tf::get_provider_schema::Response {
+            provider: Some(tf::Schema {
+                version: 1,
+                block: Some(tf::schema::Block {
+                    version: 1,
+                    attributes: vec![],
+                    block_types: vec![],
+                }),
+            }),
+            resource_schemas: HashMap::new(),
+            data_source_schemas: HashMap::new(),
+            diagnostics: vec![],
+        }))
+    }
+    async fn prepare_provider_config(
+        &self,
+        request: tonic::Request<tf::prepare_provider_config::Request>,
+    ) -> Result<tonic::Response<tf::prepare_provider_config::Response>, tonic::Status> {
+        unimplemented!();
+    }
+    async fn validate_resource_type_config(
+        &self,
+        request: tonic::Request<tf::validate_resource_type_config::Request>,
+    ) -> Result<tonic::Response<tf::validate_resource_type_config::Response>, tonic::Status> {
+        unimplemented!();
+    }
+    async fn validate_data_source_config(
+        &self,
+        request: tonic::Request<tf::validate_data_source_config::Request>,
+    ) -> Result<tonic::Response<tf::validate_data_source_config::Response>, tonic::Status> {
+        unimplemented!();
+    }
+    async fn configure(
+        &self,
+        request: tonic::Request<tf::configure::Request>,
+    ) -> Result<tonic::Response<tf::configure::Response>, tonic::Status> {
+        unimplemented!();
+    }
+    async fn stop(
+        &self,
+        request: tonic::Request<tf::stop::Request>,
+    ) -> Result<tonic::Response<tf::stop::Response>, tonic::Status> {
         unimplemented!();
     }
 }
