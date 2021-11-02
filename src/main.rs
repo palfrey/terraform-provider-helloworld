@@ -13,6 +13,7 @@ use tonic::transport::{Server, ServerTlsConfig};
 use tower_http::trace::TraceLayer;
 
 use rustls::internal::msgs::handshake::DigitallySignedStruct;
+use server::stdio::grpc_broker_server::GrpcBrokerServer;
 use server::stdio::grpc_stdio_server::GrpcStdioServer;
 
 const CORE_PROTOCOL_VERSION: u8 = 1;
@@ -78,6 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = "0.0.0.0:10000".parse()?;
     let hello_world = server::HelloWorldProvider::default();
     let stdio = server::StdioProvider::default();
+    let broker = server::BrokerProvider::default();
 
     let mut client_root_cert_store = rustls::RootCertStore::empty();
 
@@ -122,6 +124,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .layer(TraceLayer::new_for_grpc())
         .add_service(ProviderServer::new(hello_world))
         .add_service(GrpcStdioServer::new(stdio))
+        .add_service(GrpcBrokerServer::new(broker))
         .serve(addr);
 
     async fn info(server_cert: rcgen::Certificate) -> Result<()> {

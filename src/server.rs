@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use async_stream::try_stream;
 use async_trait::async_trait;
 use futures_core::stream::BoxStream;
+use stdio::ConnInfo;
 use stdio::StdioData;
 use tf::provider_server::Provider;
 use tokio::time::{sleep, Duration};
@@ -123,8 +124,28 @@ impl stdio::grpc_stdio_server::GrpcStdio for StdioProvider {
     ) -> Result<tonic::Response<Self::StreamStdioStream>, tonic::Status> {
         return Ok(tonic::Response::new(Box::pin(try_stream! {
             loop {
-                sleep(Duration::from_secs(30)).await;
                 yield StdioData{channel: 1, data: vec![]};
+                sleep(Duration::from_secs(30)).await;
+            }
+        })));
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct BrokerProvider {}
+
+#[async_trait]
+impl stdio::grpc_broker_server::GrpcBroker for BrokerProvider {
+    type StartStreamStream = BoxStream<'static, Result<ConnInfo, tonic::Status>>;
+
+    async fn start_stream(
+        &self,
+        request: tonic::Request<tonic::Streaming<ConnInfo>>,
+    ) -> Result<tonic::Response<Self::StartStreamStream>, tonic::Status> {
+        return Ok(tonic::Response::new(Box::pin(try_stream! {
+            loop {
+                yield ConnInfo{service_id: 1, network: String::from("network"), address: String::from("address")};
+                sleep(Duration::from_secs(30)).await;
             }
         })));
     }
