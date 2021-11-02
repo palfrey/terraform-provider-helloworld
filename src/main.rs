@@ -67,6 +67,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let log_file = File::create("../my_cool_trace.log")?;
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
+        .with_ansi(false)
         .with_writer(Mutex::new(log_file))
         // .with_writer(io::stderr)
         .init();
