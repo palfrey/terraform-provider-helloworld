@@ -7,6 +7,7 @@ use futures_core::stream::BoxStream;
 use stdio::ConnInfo;
 use stdio::StdioData;
 use tf::provider_server::Provider;
+use tf::StringKind;
 use tokio::time::{sleep, Duration};
 
 pub mod tf {
@@ -67,11 +68,25 @@ impl Provider for HelloWorldProvider {
                     version: 1,
                     attributes: vec![],
                     block_types: vec![],
+                    description: "registry.terraform.io/hashicorp/helloworld".to_string(),
+                    description_kind: StringKind::Plain as i32,
+                    deprecated: false,
                 }),
             }),
             resource_schemas: HashMap::new(),
             data_source_schemas: HashMap::new(),
             diagnostics: vec![],
+            provider_meta: Some(tf::Schema {
+                version: 1,
+                block: Some(tf::schema::Block {
+                    version: 1,
+                    attributes: vec![],
+                    block_types: vec![],
+                    description: "registry.terraform.io/hashicorp/helloworld".to_string(),
+                    description_kind: 1,
+                    deprecated: false,
+                }),
+            }),
         }))
     }
     async fn prepare_provider_config(
