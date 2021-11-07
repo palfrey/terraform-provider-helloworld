@@ -1,5 +1,5 @@
-terraform-provider-hello-world
-==============================
+terraform-provider-helloworld
+=============================
 
 [![Continuous integration](https://github.com/palfrey/terraform-provider-helloworld/actions/workflows/ci.yml/badge.svg)](https://github.com/palfrey/terraform-provider-helloworld/actions/workflows/ci.yml)
 [![badge](https://img.shields.io/badge/terraform-palfrey%2Fhelloworld-blueviolet)](https://registry.terraform.io/providers/palfrey/helloworld)
