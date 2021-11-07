@@ -43,9 +43,9 @@ impl rustls::ClientCertVerifier for CertVerifier {
             )));
         }
         if presented_certs[0].0 != self.cert {
-            return Err(TLSError::General(format!(
-                "server certificates doesn't match ours"
-            )));
+            return Err(TLSError::General(
+                "server certificates doesn't match ours".to_string(),
+            ));
         }
         Ok(ClientCertVerified::assertion())
     }
@@ -61,7 +61,7 @@ impl rustls::ClientCertVerifier for CertVerifier {
         //
         // FIXME: Blocked by upstream https://github.com/briansmith/ring/issues/824
 
-        return Ok(HandshakeSignatureValid::assertion());
+        Ok(HandshakeSignatureValid::assertion())
     }
 }
 
@@ -99,7 +99,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     cert_buffer.seek(SeekFrom::Start(0)).await?;
 
     let raw_cert = env_cert.as_bytes();
-    let x509_cert = x509_parser::pem::parse_x509_pem(&raw_cert)
+    let x509_cert = x509_parser::pem::parse_x509_pem(raw_cert)
         .unwrap()
         .1
         .clone();
@@ -123,12 +123,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     async fn info(server_cert: rcgen::Certificate) -> Result<()> {
         println!(
-            "{}|{}|{}|{}|{}|{}",
+            "{}|5|tcp|localhost:10000|grpc|{}",
             CORE_PROTOCOL_VERSION,
-            "5",
-            "tcp",
-            "localhost:10000",
-            "grpc",
             base64::encode_config(
                 server_cert.serialize_der().unwrap(),
                 base64::STANDARD_NO_PAD
