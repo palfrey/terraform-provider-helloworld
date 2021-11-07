@@ -37,7 +37,13 @@ impl Provider for HelloWorldProvider {
         &self,
         request: tonic::Request<tf::plan_resource_change::Request>,
     ) -> Result<tonic::Response<tf::plan_resource_change::Response>, tonic::Status> {
-        unimplemented!();
+        Ok(tonic::Response::new(tf::plan_resource_change::Response {
+            planned_state: request.get_ref().proposed_new_state.clone(),
+            requires_replace: vec![],
+            planned_private: vec![],
+            diagnostics: vec![],
+            legacy_type_system: false,
+        }))
     }
     async fn apply_resource_change(
         &self,
@@ -83,7 +89,33 @@ impl Provider for HelloWorldProvider {
                     deprecated: false,
                 }),
             }),
-            resource_schemas: HashMap::new(),
+            resource_schemas: [(
+                "helloworld_thing".to_string(),
+                tf::Schema {
+                    version: 1,
+                    block: Some(tf::schema::Block {
+                        version: 1,
+                        attributes: vec![tf::schema::Attribute {
+                            name: "bar".to_string(),
+                            r#type: String::into_bytes("\"string\"".to_string()),
+                            description: "Test attribute".to_string(),
+                            required: false,
+                            optional: true,
+                            computed: false,
+                            sensitive: false,
+                            description_kind: StringKind::Plain as i32,
+                            deprecated: false,
+                        }],
+                        block_types: vec![],
+                        description: "helloworld_thing".to_string(),
+                        description_kind: StringKind::Plain as i32,
+                        deprecated: false,
+                    }),
+                },
+            )]
+            .iter()
+            .cloned()
+            .collect(),
             data_source_schemas: HashMap::new(),
             diagnostics: vec![],
             provider_meta: Some(tf::Schema {
@@ -103,13 +135,22 @@ impl Provider for HelloWorldProvider {
         &self,
         request: tonic::Request<tf::prepare_provider_config::Request>,
     ) -> Result<tonic::Response<tf::prepare_provider_config::Response>, tonic::Status> {
-        unimplemented!();
+        Ok(tonic::Response::new(
+            tf::prepare_provider_config::Response {
+                prepared_config: request.get_ref().config.clone(),
+                diagnostics: vec![],
+            },
+        ))
     }
     async fn validate_resource_type_config(
         &self,
         request: tonic::Request<tf::validate_resource_type_config::Request>,
     ) -> Result<tonic::Response<tf::validate_resource_type_config::Response>, tonic::Status> {
-        unimplemented!();
+        Ok(tonic::Response::new(
+            tf::validate_resource_type_config::Response {
+                diagnostics: vec![],
+            },
+        ))
     }
     async fn validate_data_source_config(
         &self,
@@ -121,7 +162,9 @@ impl Provider for HelloWorldProvider {
         &self,
         request: tonic::Request<tf::configure::Request>,
     ) -> Result<tonic::Response<tf::configure::Response>, tonic::Status> {
-        unimplemented!();
+        Ok(tonic::Response::new(tf::configure::Response {
+            diagnostics: vec![],
+        }))
     }
     async fn stop(
         &self,
