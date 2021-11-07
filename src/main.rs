@@ -56,26 +56,23 @@ impl rustls::ClientCertVerifier for CertVerifier {
         _cert: &rustls::Certificate,
         _dss: &DigitallySignedStruct,
     ) -> Result<HandshakeSignatureValid, TLSError> {
-        // It's a SHA-512 ECDSA, which webpki doesn't support (because they're not generally used in the web)
-        // See also https://www.chromestatus.com/feature/5725838074970112
+        // It's a SHA-512 ECDSA, which webpki doesn't support. We assume by default that if the client cert
+        // someone handed us equals the one in the environment variables that this is probably ok.
+        //
+        // FIXME: Blocked by upstream https://github.com/briansmith/ring/issues/824
+
         return Ok(HandshakeSignatureValid::assertion());
     }
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let log_file = File::create("../my_cool_trace.log")?;
+    let log_file = File::create("helloworld-trace.log")?;
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .with_ansi(false)
         .with_writer(Mutex::new(log_file))
-        // .with_writer(io::stderr)
         .init();
-
-    // let collector = tracing_subscriber::fmt()
-    //     .event_format(format().json())
-    //     .finish();
-    // tracing::subscriber::set_global_default(collector).unwrap();
 
     let addr = "0.0.0.0:10000".parse()?;
     let hello_world = server::HelloWorldProvider::default();
@@ -84,12 +81,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut client_root_cert_store = rustls::RootCertStore::empty();
 
-    if let Ok(pem) = env::var("PLUGIN_CLIENT_CERT") {
-        let mut pem_buffer = std::io::Cursor::new(pem);
-        client_root_cert_store
-            .add_pem_file(&mut pem_buffer)
-            .unwrap();
-    }
+    let env_cert = env::var("PLUGIN_CLIENT_CERT").unwrap();
+    let mut pem_buffer = std::io::Cursor::new(env_cert.clone());
+    client_root_cert_store
+        .add_pem_file(&mut pem_buffer)
+        .unwrap();
     let mut cp = rcgen::CertificateParams::new(vec!["localhost".to_string()]);
     cp.is_ca = IsCa::Ca(BasicConstraints::Unconstrained);
     let server_cert = rcgen::Certificate::from_params(cp)?;
@@ -102,7 +98,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     cert_buffer.seek(SeekFrom::Start(0)).await?;
 
-    let env_cert = env::var("PLUGIN_CLIENT_CERT").unwrap();
     let raw_cert = env_cert.as_bytes();
     let x509_cert = x509_parser::pem::parse_x509_pem(&raw_cert)
         .unwrap()
@@ -113,10 +108,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         root_store: client_root_cert_store,
     }));
     server_config.set_single_cert(tls_cert, key.pop().unwrap())?;
-    // server_config.set_protocols(&[Vec::from("h2")]);
     server_config.versions = vec![ProtocolVersion::TLSv1_2];
     let mut tls_config = ServerTlsConfig::new();
-    // tls_config = tls_config.identity(identity);
     tls_config.rustls_server_config(server_config);
 
     let serve = Server::builder()
