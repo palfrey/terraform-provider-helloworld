@@ -1,7 +1,7 @@
 ---
 repos:
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.1.0
+      rev: 0.2.3
       hooks:
           - id: yamlfmt
     - repo: https://github.com/doublify/pre-commit-rust
